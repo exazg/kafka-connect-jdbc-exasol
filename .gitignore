@@ -1,0 +1,13 @@
+# Ignore target directory
+target/
+
+# Eclipse and Maven
+.classpath
+.project
+.settings/
+target
+.cache
+
+# Intellij
+.idea/
+*.iml
