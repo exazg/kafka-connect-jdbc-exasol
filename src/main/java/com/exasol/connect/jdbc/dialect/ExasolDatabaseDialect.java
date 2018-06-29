@@ -35,4 +35,14 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
     super(config, new IdentifierRules(".", "\"", "\""));
   }
 
+  @Override
+  protected String currentTimestampDatabaseQuery() {
+    return "SELECT CURRENT_TIMESTAMP";
+  }
+
+  @Override
+  protected String checkConnectionQuery() {
+    return "SELECT 1";
+  }
+
 }
