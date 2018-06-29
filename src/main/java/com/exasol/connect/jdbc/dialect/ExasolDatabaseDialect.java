@@ -41,16 +41,6 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
   }
 
   @Override
-  protected String currentTimestampDatabaseQuery() {
-    return "SELECT CURRENT_TIMESTAMP";
-  }
-
-  @Override
-  protected String checkConnectionQuery() {
-    return "SELECT 1";
-  }
-
-  @Override
   protected String getSqlType(SinkRecordField field) {
     if (field.schemaName() != null) {
       switch (field.schemaName()) {
