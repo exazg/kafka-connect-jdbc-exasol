@@ -6,6 +6,11 @@ import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Time;
 import org.apache.kafka.connect.data.Timestamp;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import io.confluent.connect.jdbc.dialect.DatabaseDialect;
 import io.confluent.connect.jdbc.dialect.DatabaseDialectProvider.SubprotocolBasedProvider;
 import io.confluent.connect.jdbc.dialect.DropOptions;
@@ -99,6 +104,18 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
       builder.append(" CASCADE CONSTRAINTS");
     }
     return builder.toString();
+  }
+
+  @Override
+  public List<String> buildAlterTable(
+      TableId table,
+      Collection<SinkRecordField> fields
+  ) {
+    final List<String> queries = new ArrayList<>(fields.size());
+    for (SinkRecordField field : fields) {
+      queries.addAll(super.buildAlterTable(table, Collections.singleton(field)));
+    }
+    return queries;
   }
 
 }
