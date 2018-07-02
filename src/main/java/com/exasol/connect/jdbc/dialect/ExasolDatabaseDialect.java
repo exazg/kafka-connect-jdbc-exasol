@@ -16,6 +16,7 @@ import io.confluent.connect.jdbc.dialect.DatabaseDialectProvider.SubprotocolBase
 import io.confluent.connect.jdbc.dialect.DropOptions;
 import io.confluent.connect.jdbc.dialect.GenericDatabaseDialect;
 import io.confluent.connect.jdbc.sink.metadata.SinkRecordField;
+import io.confluent.connect.jdbc.util.ColumnId;
 import io.confluent.connect.jdbc.util.ExpressionBuilder;
 import io.confluent.connect.jdbc.util.IdentifierRules;
 import io.confluent.connect.jdbc.util.TableId;
@@ -116,6 +117,60 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
       queries.addAll(super.buildAlterTable(table, Collections.singleton(field)));
     }
     return queries;
+  }
+
+  @Override
+  public String buildUpsertQueryStatement(
+      TableId table,
+      Collection<ColumnId> keyColumns,
+      Collection<ColumnId> nonKeyColumns
+  ) {
+    ExpressionBuilder builder = expressionBuilder();
+    builder.append("MERGE INTO ");
+    builder.append(table);
+    builder.append(" AS target USING (SELECT ");
+    builder.appendList()
+           .delimitedBy(", ")
+           .transformedBy(ExpressionBuilder.columnNamesWithPrefix("? AS "))
+           .of(keyColumns, nonKeyColumns);
+    builder.append(") AS incoming ON (");
+    builder.appendList()
+           .delimitedBy(" AND ")
+           .transformedBy(this::transformAs)
+           .of(keyColumns);
+    builder.append(")");
+    if (nonKeyColumns != null && !nonKeyColumns.isEmpty()) {
+      builder.append(" WHEN MATCHED THEN UPDATE SET ");
+      builder.appendList()
+             .delimitedBy(",")
+             .transformedBy(this::transformUpdate)
+             .of(nonKeyColumns);
+    }
+    builder.append(" WHEN NOT MATCHED THEN INSERT (");
+    builder.appendList()
+           .delimitedBy(", ")
+           .transformedBy(ExpressionBuilder.columnNames())
+           .of(nonKeyColumns, keyColumns);
+    builder.append(") VALUES (");
+    builder.appendList()
+           .delimitedBy(",")
+           .transformedBy(ExpressionBuilder.columnNamesWithPrefix("incoming."))
+           .of(nonKeyColumns, keyColumns);
+    builder.append(")");
+    return builder.toString();
+  }
+
+  private void transformAs(ExpressionBuilder builder, ColumnId col) {
+    builder.append("target.")
+           .appendIdentifierQuoted(col.name())
+           .append("=incoming.")
+           .appendIdentifierQuoted(col.name());
+  }
+
+  private void transformUpdate(ExpressionBuilder builder, ColumnId col) {
+    builder.appendIdentifierQuoted(col.name())
+           .append("=incoming.")
+           .appendIdentifierQuoted(col.name());
   }
 
 }
