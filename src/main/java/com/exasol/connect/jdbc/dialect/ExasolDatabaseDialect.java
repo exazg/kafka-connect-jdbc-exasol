@@ -8,9 +8,12 @@ import org.apache.kafka.connect.data.Timestamp;
 
 import io.confluent.connect.jdbc.dialect.DatabaseDialect;
 import io.confluent.connect.jdbc.dialect.DatabaseDialectProvider.SubprotocolBasedProvider;
+import io.confluent.connect.jdbc.dialect.DropOptions;
 import io.confluent.connect.jdbc.dialect.GenericDatabaseDialect;
 import io.confluent.connect.jdbc.sink.metadata.SinkRecordField;
+import io.confluent.connect.jdbc.util.ExpressionBuilder;
 import io.confluent.connect.jdbc.util.IdentifierRules;
+import io.confluent.connect.jdbc.util.TableId;
 
 /**
  * A {@link DatabaseDialect} for Exasol.
@@ -78,6 +81,24 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
       default:
         return super.getSqlType(field);
     }
+  }
+
+  @Override
+  public String buildDropTableStatement(
+      TableId table,
+      DropOptions options
+  ) {
+    ExpressionBuilder builder = expressionBuilder();
+
+    builder.append("DROP TABLE");
+    if (options.ifExists()) {
+      builder.append(" IF EXISTS");
+    }
+    builder.append(" " + table);
+    if (options.cascade()) {
+      builder.append(" CASCADE CONSTRAINTS");
+    }
+    return builder.toString();
   }
 
 }
