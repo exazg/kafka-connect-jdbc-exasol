@@ -8,11 +8,16 @@ import org.apache.kafka.connect.data.Time;
 import org.apache.kafka.connect.data.Timestamp;
 import org.apache.kafka.connect.errors.ConnectException;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.List;
+
 import io.confluent.connect.jdbc.dialect.BaseDialectTest;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDialect> {
 
@@ -81,5 +86,47 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
   public void shouldMapTimestampSchemaTypeToTimestampSqlType() {
     assertTimestampMapping("TIMESTAMP");
   }
+
+  @Ignore("TIME (c7) column fails because of the date")
+  @Test
+  public void shouldBuildCreateQueryStatement() {
+    String expected = "CREATE TABLE \"myTable\" (\n" +
+                      "\"c1\" DECIMAL(10,0) NOT NULL,\n" +
+                      "\"c2\" DECIMAL(19,0) NOT NULL,\n" +
+                      "\"c3\" CLOB NOT NULL,\n" +
+                      "\"c4\" CLOB NULL,\n" +
+                      "\"c5\" DATE DEFAULT '2001-03-15',\n" +
+                      "\"c6\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000',\n" +
+                      "\"c7\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000',\n" +
+                      "\"c8\" DECIMAL(36,4) NULL,\n" +
+                      "PRIMARY KEY(\"c1\"))";
+    String sql = dialect.buildCreateTableStatement(tableId, sinkRecordFields);
+    assertEquals(expected, sql);
+  }
+
+  @Ignore("TIME (c7) column fails because of the date")
+  @Test
+  public void shouldBuildAlterTableStatement() {
+    List<String> statements = dialect.buildAlterTable(tableId, sinkRecordFields);
+    String[] sql = {"ALTER TABLE \"myTable\" ADD \"c1\" DECIMAL(10,0) NOT NULL",
+                    "ALTER TABLE \"myTable\" ADD \"c2\" DECIMAL(19,0) NOT NULL",
+                    "ALTER TABLE \"myTable\" ADD \"c3\" CLOB NOT NULL",
+                    "ALTER TABLE \"myTable\" ADD \"c4\" CLOB NULL",
+                    "ALTER TABLE \"myTable\" ADD \"c5\" DATE DEFAULT '2001-03-15'",
+                    "ALTER TABLE \"myTable\" ADD \"c6\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000'",
+                    "ALTER TABLE \"myTable\" ADD \"c7\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000'",
+                    "ALTER TABLE \"myTable\" ADD \"c8\" DECIMAL(36,4) NULL"};
+    assertStatements(sql, statements);
+  }
+
+/*
+    System.out.println("====================");
+    for (String s : sql)
+      System.out.println(s);
+    System.out.println("====================");
+    System.out.println(statements);
+    System.out.println("====================");
+
+*/
 
 }
