@@ -26,6 +26,7 @@
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <kafka-connect-jdbc.version>5.1.0-SNAPSHOT</kafka-connect-jdbc.version>
         <kafka-connect-jdbc.jar>/var/tmp/crypt/github/confluent/kafka-connect-jdbc/target/kafka-connect-jdbc-5.1.0-SNAPSHOT.jar</kafka-connect-jdbc.jar>
+        <kafka-connect-jdbc-test.jar>/var/tmp/crypt/github/confluent/kafka-connect-jdbc/target/kafka-connect-jdbc-5.1.0-SNAPSHOT-tests.jar</kafka-connect-jdbc-test.jar>
         <confluent.maven.repo>http://packages.confluent.io/maven/</confluent.maven.repo>
     </properties>
 
@@ -47,12 +48,25 @@
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-connect-jdbc</artifactId>
+            <version>${kafka-connect-jdbc.version}</version>
+            <type>test-jar</type>
+            <scope>system</scope>
+            <systemPath>${kafka-connect-jdbc-test.jar}</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
             <artifactId>connect-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
