@@ -119,6 +119,24 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     assertStatements(sql, statements);
   }
 
+  @Test
+  public void shouldBuildUpsertStatement() {
+    String expected = "MERGE INTO \"myTable\" AS target USING " +
+                      "(SELECT ? AS \"id1\", ? AS \"id2\", ? AS \"columnA\", " +
+                      "? AS \"columnB\", ? AS \"columnC\", ? AS \"columnD\") AS incoming ON " +
+                      "(target.\"id1\"=incoming.\"id1\" AND target.\"id2\"=incoming.\"id2\") " +
+                      "WHEN MATCHED THEN UPDATE SET " +
+                      "\"columnA\"=incoming.\"columnA\",\"columnB\"=incoming.\"columnB\"," +
+                      "\"columnC\"=incoming.\"columnC\",\"columnD\"=incoming.\"columnD\" " +
+                      "WHEN NOT MATCHED THEN INSERT " +
+                      "(\"columnA\",\"columnB\",\"columnC\",\"columnD\",\"id1\",\"id2\") " +
+                      "VALUES " +
+                      "(incoming.\"columnA\",incoming.\"columnB\",incoming.\"columnC\"," +
+                      "incoming.\"columnD\",incoming.\"id1\",incoming.\"id2\")";
+    String sql = dialect.buildUpsertQueryStatement(tableId, pkColumns, columnsAtoD);
+    assertEquals(expected, sql);
+  }
+
 /*
     System.out.println("====================");
     for (String s : sql)

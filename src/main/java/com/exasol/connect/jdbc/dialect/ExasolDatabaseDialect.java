@@ -148,7 +148,7 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
     }
     builder.append(" WHEN NOT MATCHED THEN INSERT (");
     builder.appendList()
-           .delimitedBy(", ")
+           .delimitedBy(",")
            .transformedBy(ExpressionBuilder.columnNames())
            .of(nonKeyColumns, keyColumns);
     builder.append(") VALUES (");
