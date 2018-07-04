@@ -31,7 +31,7 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
    */
   public static class Provider extends SubprotocolBasedProvider {
     public Provider() {
-      super(ExasolDatabaseDialect.class.getSimpleName(), "exasol");
+      super(ExasolDatabaseDialect.class.getSimpleName(), "exa");
     }
 
     @Override
