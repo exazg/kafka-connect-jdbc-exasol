@@ -66,7 +66,7 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     verifyDataTypeMapping("DECIMAL(36,0)", Decimal.schema(0));
     verifyDataTypeMapping("DECIMAL(36,4)", Decimal.schema(4));
     verifyDataTypeMapping("DATE", Date.SCHEMA);
-    verifyDataTypeMapping("TIMESTAMP", Time.SCHEMA);
+    verifyDataTypeMapping("DECIMAL(10,0)", Time.SCHEMA);
     verifyDataTypeMapping("TIMESTAMP", Timestamp.SCHEMA);
     // BLOB is not supported
     exception.expect(ConnectException.class);
@@ -80,7 +80,7 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
 
   @Test
   public void shouldMapTimeSchemaTypeToTimeSqlType() {
-    assertTimeMapping("TIMESTAMP");
+    assertTimeMapping("DECIMAL(10,0)");
   }
 
   @Test
@@ -88,7 +88,6 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     assertTimestampMapping("TIMESTAMP");
   }
 
-  @Ignore("TIME (c7) column fails because of the date")
   @Test
   public void shouldBuildCreateQueryStatement() {
     String expected = "CREATE TABLE \"myTable\" (\n" +
@@ -97,7 +96,7 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
                       "\"c3\" CLOB NOT NULL,\n" +
                       "\"c4\" CLOB NULL,\n" +
                       "\"c5\" DATE DEFAULT '2001-03-15',\n" +
-                      "\"c6\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000',\n" +
+                      "\"c6\" DECIMAL(10,0) DEFAULT '00:00:00.000',\n" +
                       "\"c7\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000',\n" +
                       "\"c8\" DECIMAL(36,4) NULL,\n" +
                       "PRIMARY KEY(\"c1\"))";
@@ -105,7 +104,6 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     assertEquals(expected, sql);
   }
 
-  @Ignore("TIME (c7) column fails because of the date")
   @Test
   public void shouldBuildAlterTableStatement() {
     List<String> statements = dialect.buildAlterTable(tableId, sinkRecordFields);
@@ -114,7 +112,7 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
                     "ALTER TABLE \"myTable\" ADD \"c3\" CLOB NOT NULL",
                     "ALTER TABLE \"myTable\" ADD \"c4\" CLOB NULL",
                     "ALTER TABLE \"myTable\" ADD \"c5\" DATE DEFAULT '2001-03-15'",
-                    "ALTER TABLE \"myTable\" ADD \"c6\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000'",
+                    "ALTER TABLE \"myTable\" ADD \"c6\" DECIMAL(10,0) DEFAULT '00:00:00.000'",
                     "ALTER TABLE \"myTable\" ADD \"c7\" TIMESTAMP DEFAULT '2001-03-15 00:00:00.000'",
                     "ALTER TABLE \"myTable\" ADD \"c8\" DECIMAL(36,4) NULL"};
     assertStatements(sql, statements);

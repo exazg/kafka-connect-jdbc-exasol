@@ -57,8 +57,8 @@ public class ExasolDatabaseDialect extends GenericDatabaseDialect {
           return "DECIMAL(36," + field.schemaParameters().get(Decimal.SCALE_FIELD) + ")";
         case Date.LOGICAL_NAME:
           return "DATE";
-        case Time.LOGICAL_NAME:
-          return "TIMESTAMP";
+        // case Time.LOGICAL_NAME:
+        // TIME is not supported (-> INT32)
         case Timestamp.LOGICAL_NAME:
           return "TIMESTAMP";
         default:
