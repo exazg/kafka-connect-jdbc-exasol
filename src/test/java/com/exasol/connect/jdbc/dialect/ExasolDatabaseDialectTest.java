@@ -137,6 +137,28 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     assertEquals(expected, sql);
   }
 
+  @Test
+  public void createOneColNoPk() {
+    verifyCreateOneColNoPk(
+        "CREATE TABLE \"myTable\" (" + System.lineSeparator() + "\"col1\" DECIMAL(10,0) NOT NULL)");
+  }
+
+  @Test
+  public void createOneColOnePk() {
+    verifyCreateOneColOnePk(
+        "CREATE TABLE \"myTable\" (" + System.lineSeparator() + "\"pk1\" DECIMAL(10,0) NOT NULL," +
+        System.lineSeparator() + "PRIMARY KEY(\"pk1\"))");
+  }
+
+  @Test
+  public void createThreeColTwoPk() {
+    verifyCreateThreeColTwoPk(
+        "CREATE TABLE \"myTable\" (" + System.lineSeparator() + "\"pk1\" DECIMAL(10,0) NOT NULL," +
+        System.lineSeparator() + "\"pk2\" DECIMAL(10,0) NOT NULL," + System.lineSeparator() +
+        "\"col1\" DECIMAL(10,0) NOT NULL," + System.lineSeparator() +
+        "PRIMARY KEY(\"pk1\",\"pk2\"))");
+  }
+
 /*
     System.out.println("====================");
     for (String s : sql)
