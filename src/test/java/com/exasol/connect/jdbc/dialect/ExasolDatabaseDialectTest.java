@@ -16,6 +16,7 @@ import org.junit.rules.ExpectedException;
 import java.util.List;
 
 import io.confluent.connect.jdbc.dialect.BaseDialectTest;
+import io.confluent.connect.jdbc.util.TableId;
 
 import static org.junit.Assert.assertEquals;
 
@@ -168,6 +169,35 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
   public void alterAddTwoCol() {
     verifyAlterAddTwoCols("ALTER TABLE \"myTable\" ADD \"newcol1\" DECIMAL(10,0) NULL",
                           "ALTER TABLE \"myTable\" ADD \"newcol2\" DECIMAL(10,0) DEFAULT 42");
+  }
+
+  @Test
+  public void upsert1() {
+    TableId customer = tableId("Customer");
+    String expected = "MERGE INTO \"Customer\" AS target " +
+                      "USING (SELECT ? AS \"id\", ? AS \"name\", ? AS \"salary\", ? AS \"address\") AS incoming " +
+                      "ON (target.\"id\"=incoming.\"id\") " +
+                      "WHEN MATCHED THEN UPDATE SET " +
+                      "\"name\"=incoming.\"name\",\"salary\"=incoming.\"salary\",\"address\"=incoming.\"address\" "+
+                      "WHEN NOT MATCHED THEN INSERT (\"name\",\"salary\",\"address\",\"id\") " +
+                      "VALUES (incoming.\"name\",incoming.\"salary\",incoming.\"address\",incoming.\"id\")";
+    String sql = dialect.buildUpsertQueryStatement(customer, columns(customer, "id"), columns(customer, "name", "salary", "address"));
+    assertEquals(expected, sql);
+  }
+
+  @Test
+  public void upsert2() {
+    TableId book = new TableId(null, null, "Book");
+    String expected = "MERGE INTO \"Book\" AS target " +
+                      "USING (SELECT ? AS \"author\", ? AS \"title\", ? AS \"ISBN\", ? AS \"year\", ? AS \"pages\") AS incoming " +
+                      "ON (target.\"author\"=incoming.\"author\" AND target.\"title\"=incoming.\"title\") " +
+                      "WHEN MATCHED THEN UPDATE SET " +
+                      "\"ISBN\"=incoming.\"ISBN\",\"year\"=incoming.\"year\",\"pages\"=incoming.\"pages\" " +
+                      "WHEN NOT MATCHED THEN INSERT (\"ISBN\",\"year\",\"pages\",\"author\",\"title\") " +
+                      "VALUES (incoming.\"ISBN\",incoming.\"year\",incoming.\"pages\",incoming.\"author\",incoming.\"title\")";
+    String sql = dialect.buildUpsertQueryStatement(book, columns(book, "author", "title"),
+                                                   columns(book, "ISBN", "year", "pages"));
+    assertEquals(expected, sql);
   }
 
 
