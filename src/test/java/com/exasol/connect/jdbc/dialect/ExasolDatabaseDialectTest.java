@@ -200,15 +200,4 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
     assertEquals(expected, sql);
   }
 
-
-/*
-    System.out.println("====================");
-    for (String s : sql)
-      System.out.println(s);
-    System.out.println("====================");
-    System.out.println(statements);
-    System.out.println("====================");
-
-*/
-
 }
