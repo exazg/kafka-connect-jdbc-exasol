@@ -159,6 +159,18 @@ public class ExasolDatabaseDialectTest extends BaseDialectTest<ExasolDatabaseDia
         "PRIMARY KEY(\"pk1\",\"pk2\"))");
   }
 
+  @Test
+  public void alterAddOneCol() {
+    verifyAlterAddOneCol("ALTER TABLE \"myTable\" ADD \"newcol1\" DECIMAL(10,0) NULL");
+  }
+
+  @Test
+  public void alterAddTwoCol() {
+    verifyAlterAddTwoCols("ALTER TABLE \"myTable\" ADD \"newcol1\" DECIMAL(10,0) NULL",
+                          "ALTER TABLE \"myTable\" ADD \"newcol2\" DECIMAL(10,0) DEFAULT 42");
+  }
+
+
 /*
     System.out.println("====================");
     for (String s : sql)
