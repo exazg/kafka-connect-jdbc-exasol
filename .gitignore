@@ -11,3 +11,6 @@ target
 # Intellij
 .idea/
 *.iml
+
+data/exa/*/
+!data/exa/.gitkeep
